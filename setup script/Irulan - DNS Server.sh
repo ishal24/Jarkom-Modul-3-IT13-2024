@@ -4,7 +4,8 @@ apt-get update
 apt-get install bind9 -y  
 
 mkdir -p /etc/bind/dune
-echo <<EOF > /etc/bind/named.conf.local
+
+cat <<EOF > /etc/bind/named.conf.local
 zone "harkonen.it13.com" {
         type master;
         file "/etc/bind/dune/harkonen.it13.com";
@@ -16,11 +17,11 @@ zone "atreides.it13.com" {
 };
 EOF
 
-echo <<EOF > /etc/bind/dune/harkonen.it13.com
+cat <<EOF > /etc/bind/dune/harkonen.it13.com
 ;
 ; BIND data file for local loopback interface
 ;
-$TTL    604800
+\$TTL    604800
 @       IN      SOA     harkonen.it13.com. root.harkonen.it13.com. (
                               2         ; Serial
                          604800         ; Refresh
@@ -33,11 +34,11 @@ $TTL    604800
 www     IN      CNAME   harkonen.it13.com.
 EOF
 
-echo <<EOF > /etc/bind/dune/atreides.it13.com
+cat <<EOF > /etc/bind/dune/atreides.it13.com
 ;
 ; BIND data file for local loopback interface
 ;
-$TTL    604800
+\$TTL    604800
 @       IN      SOA     atreides.it13.com. root.atreides.it13.com. (
                               2         ; Serial
                          604800         ; Refresh
@@ -50,7 +51,7 @@ $TTL    604800
 www     IN      CNAME   atreides.it13.com.
 EOF
 
-echo <<EOF > /etc/bind/named.conf.options
+cat <<EOF > /etc/bind/named.conf.options
 options {
       directory "/var/cache/bind";
 
