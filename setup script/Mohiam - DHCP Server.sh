@@ -14,7 +14,7 @@ subnet 10.70.1.0 netmask 255.255.255.0 {
     range 10.70.1.14 10.70.1.28;
     range 10.70.1.49 10.70.1.70;
     option routers 10.70.1.0;  # Gateway for this subnet
-    option domain-name-servers 10.70.3.1;  # DNS server
+    option domain-name-servers 10.70.3.2;  # DNS server
     default-lease-time 300;  # Lease time for clients in Harkonen
     max-lease-time 5220;    # Max lease time
 }
@@ -24,7 +24,7 @@ subnet 10.70.2.0 netmask 255.255.255.0 {
     range 10.70.2.15 10.70.2.25;
     range 10.70.2.200 10.70.2.210;
     option routers 10.70.2.0;  # Gateway for this subnet
-    option domain-name-servers 10.70.3.1;  # DNS server
+    option domain-name-servers 10.70.3.2;  # DNS server
     default-lease-time 1200;  # Lease time for clients in Atreides
     max-lease-time 5220;     # Max lease time
 }
@@ -33,7 +33,7 @@ subnet 10.70.3.0 netmask 255.255.255.0 {
 
 }
 
-subnet 10.70.3.0 netmask 255.255.255.0 {
+subnet 10.70.4.0 netmask 255.255.255.0 {
 
 }
 EOF
@@ -50,6 +50,8 @@ cat <<EOF > /etc/default/isc-dhcp-server
 INTERFACESv4="eth0"  # Replace with the actual interface connected to the network
 # INTERFACESv6=""
 EOF
+
+rm -f /var/run/dhcpd.pid
 
 # Restart the DHCP server to apply the configuration
 service isc-dhcp-server restart
