@@ -36,6 +36,11 @@ subnet 10.70.3.0 netmask 255.255.255.0 {
 subnet 10.70.4.0 netmask 255.255.255.0 {
 
 }
+
+host {
+    hardware ethernet 52:47:3b:11:b4:35
+    fixed-address 10.70.1.37
+}
 EOF
 
 rm /etc/default/isc-dhcp-server
