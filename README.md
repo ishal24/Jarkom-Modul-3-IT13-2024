@@ -144,7 +144,7 @@ auto eth0
 iface eth0 inet dhcp
 ```
 ## *Bagian 0*
-### **(Soal 0)** Registrasi Domain [0]
+### **(Soal 0)** Registrasi Domain `[0]`
 > Register domain ```atreides.it13.com``` untuk worker Laravel yang mengarah pada Leto & register domain ```harkonen.it13.com``` untuk worker PHP yang mengarah pada Vladimir.
 
 - #### Setup Irulan agar domain terdaftar
@@ -259,14 +259,14 @@ apt-get install udhcpc -y
 
 ## *Bagian 1*
 
-### **(Soal 1)** [1]
+### **(Soal 1)** `[1]`
 > Semua CLIENT harus menggunakan konfigurasi dari DHCP Server
 - #### Tambahkan line script agar setiap node terkoneksi dengan DHCP
 ```bash
 echo 'nameserver 10.70.3.2' > /etc/resolv.conf
 ```
 
-### **(Soal 2)** [2]
+### **(Soal 2)** `[2]`
 > Client yang melalui **House Harkonen** mendapatkan range IP dari [prefix IP].1.14 - [prefix IP].1.28 dan [prefix IP].1.49 - [prefix IP].1.70
 - #### Menambahkan IP range untuk Harkonen
 ```bash
@@ -286,7 +286,7 @@ Script snippet tersebut akan disematkan pada file script node Mohiam. Tidak lupa
 #### Results
 **[INSERT RESULTS]**
 
-### **(Soal 3)** [3]
+### **(Soal 3)** `[3]`
 > Client yang melalui **House Atreides** mendapatkan range IP dari [prefix IP].2.15 - [prefix IP].2.25 dan [prefix IP].2 .200 - [prefix IP].2.210
 
 - #### Menambahkan IP range untuk Atreides
@@ -307,7 +307,7 @@ Sama seperti nomor sebelumnya, script snippet tersebut akan disematkan pada file
 #### Results
 **[INSERT RESULTS]**
 
-### **(Soal 4)** [4]
+### **(Soal 4)** `[4]`
 > Client mendapatkan DNS dari Princess Irulan dan dapat terhubung dengan internet melalui DNS tersebut
 
 - #### Menambahkan Forwarder pada script Irulan
@@ -333,7 +333,7 @@ Forwarder tersebut ditambahkan agar setiap request yang masuk dapat ditujukan ke
 #### Results
 ![Soal 4](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/ping_web.png)
 
-### **(Soal 5)** [5]
+### **(Soal 5)** `[5]`
 > Durasi DHCP server meminjamkan alamat IP kepada Client yang melalui House Harkonen selama 5 menit sedangkan pada client yang melalui House Atreides selama 20 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 87 menit
 
 - #### Menambahkan Lease Time configuration pada kedua House
@@ -369,7 +369,7 @@ subnet 10.70.2.0 netmask 255.255.255.0 {
 ![LT Paul](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/lease_time_paul.png)
 
 ## *Bagian 2*
-### **(Soal 1)** [6]
+### **(Soal 1)** `[6]`
 > Vladimir Harkonen memerintahkan setiap worker(harkonen) PHP, untuk melakukan konfigurasi virtual host untuk website *dari soal* dengan menggunakan php 7.3
 
 - #### Script Worker PHP (Vladimir, Rabban, Feyd)
@@ -422,7 +422,7 @@ service nginx restart
 #### Results
 **[INSERT RESULTS]**
 
-### **(Soal 2)** [7]
+### **(Soal 2)** `[7]`
 > Aturlah agar Stilgar dari fremen dapat dapat bekerja sama dengan maksimal, lalu lakukan testing dengan 5000 request dan 150 request/second.
 
 - #### Script Stilgar sebagai Load Balancer
@@ -480,9 +480,155 @@ ab -n 5000 -c 50 http://www.harkonen.it13.com/
 - Result
 ![Result 7](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/no_7_result.png)
 
-### **(Soal 3)** [8]
+### **(Soal 3)** `[8]`
 > Karena diminta untuk menuliskan peta tercepat menuju spice, buatlah analisis hasil testing dengan 500 request dan 50 request/second masing-masing algoritma Load Balancer
 
 Algoritma yang akan digunakan untuk melakukan analisis jaringan kali ini adalah Round-Robin, Least Connection, IP Hash, Generic Hash
 
-Untuk penjelasan detail mengenai network analisis ini telah tercantum pada file [```IT13.Spice.pdf```]()
+Load balancer akan disetup seperti berikut
+```bash
+upstream worker {
+        # least_conn;
+        # ip_hash;
+        # hash $request_uri consistent;
+        # random two least_conn;
+        server 10.70.1.2; # IP Vladimir
+        server 10.70.1.3; # IP Rabban
+        server 10.70.1.4; # IP Feyd
+}
+```
+Untuk mengganti algoritma yang akan digunakan, dapat menghapus dan menambahkan tagar `#` sesuai dengan kebutuhan.
+
+Untuk menjalankan testing ini, kami menggunakan script tambahan yang akan melakukan loop hingga 10 kali untuk mendapatan rata-rata Request per Second dengan script [`benchmark.sh`](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/benchmark/benchmark.sh)
+
+Script dapat dijalankan dengan command
+```bash
+bash benchmark.sh
+```
+
+Untuk penjelasan dan hasil mengenai testing ini telah tercantum pada file [`IT13_Spice.pdf`](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/IT13_Spice.pdf)
+
+### **(Soal 4)** `[9]`
+> Dengan menggunakan algoritma Least-Connection, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 1000 request dengan 10 request/second, kemudian tambahkan grafiknya pada peta
+
+Untuk penyelesaiannya, kita hanya perlu menghilangkan list worker dari yang ada. Dibawah dicontohkan untuk 2 worker.
+
+```bash
+upstream worker {
+        # least_conn;
+        # ip_hash;
+        # hash $request_uri consistent;
+        # random two least_conn;
+        # server 10.70.1.2; # IP Vladimir
+        server 10.70.1.3; # IP Rabban
+        server 10.70.1.4; # IP Feyd
+}
+```
+
+Untuk menjalankan worker testing ini, kami menggunakan script tambahan yang akan melakukan loop hingga 10 kali untuk mendapatan rata-rata Request per Second dengan script [`benchmark2.sh`](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/benchmark/benchmark.sh)
+
+Script dapat dijalankan dengan command
+```bash
+bash benchmark2.sh
+```
+
+Untuk penjelasan beserta hasil dari testing ini terdapat pada laporan [`IT13_Spice.pdf`](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/IT13_Spice.pdf)
+
+### **(Soal 5)** `[10]`
+> Selanjutnya coba tambahkan keamanan dengan konfigurasi autentikasi di LB dengan dengan kombinasi username: “secmart” dan password: “kcksyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/supersecret/
+
+- #### Dalam konfigurasi script stilgar, kita tambahkan `server` berikut untuk menjalankan konfigurasi autentikasi tersebut
+```bash
+server {
+	listen 80;
+
+	root /var/www/html;
+
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name _;
+
+	location / {
+		auth_basic "Restricted Content";
+        auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        proxy_pass http://worker;
+	}
+}
+```
+
+Lakukan restart service
+```
+service nginx restart
+service php7.3-fpm restart
+```
+
+### **(Soal 6)** `[11]`
+> Lalu buat untuk setiap request yang mengandung /dune akan di proxy passing menuju halaman https://www.dunemovie.com.au/
+
+- #### Dalam konfigurasi `server` script Stilgar, kita tambahkan snippet berikut
+```bash
+location /dune {
+                proxy_pass https://www.dunemovie.com.au/;
+                proxy_set_header Host www.dunemovie.com.au;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+        }
+```
+
+Sebelum dilakukan testing, perlu dilakukan restart service yang akan digunakan
+```
+service nginx restart
+service php7.3-fpm restart
+```
+
+### **(Soal 7)** `[12]`
+> Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].1.37, [Prefix IP].1.67, [Prefix IP].2.203, dan [Prefix IP].2.207
+
+- #### Dalam konfigurasi script stilgar, kita tambahkan restriksi IP Address yang sesuai dengan ketentuan soal dalam `server`
+```bash
+    location / {
+            allow 10.70.1.37;                
+            allow 10.70.1.67
+            allow 10.70.2.203;
+            allow 10.70.2.207;
+            deny all;
+            proxy_pass http://worker;
+
+   auth_basic "Restricted Content";	
+   auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+    proxy_pass http://worker;
+        }
+```
+
+Lakukan restart pada service yang akan digunakan
+```bash
+service nginx restart
+service php7.3-fpm restart
+```
+
+## *Bagian 3*
+### **(Soal 1)** `[13]`
+> Semua data yang diperlukan, diatur pada Chani dan harus dapat diakses oleh Leto, Duncan, dan Jessica
+
+
+
+### **(Soal 2)** `[14]`
+> Leto, Duncan, dan Jessica memiliki atreides Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer
+
+### **(Soal 3)** `[15, 16, 17]`
+> Atreides Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada peta.
+> - POST /auth/register
+> - POST /auth/login
+> - GET /me
+
+
+### **(Soal 4)** `[18]`
+> Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur atreides Channel maka implementasikan Proxy Bind pada Stilgar untuk mengaitkan IP dari Leto, Duncan, dan Jessica
+
+### **(Soal 5)** `[19]`
+> Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Leto, Duncan, dan Jessica. Untuk testing kinerja naikkan variabel dibawah ini sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada PDF
+> - pm.max_children
+> - pm.start_servers
+> - pm.min_spare_servers
+> - pm.max_spare_servers  
