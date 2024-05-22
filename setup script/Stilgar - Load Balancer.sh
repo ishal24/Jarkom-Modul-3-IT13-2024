@@ -3,6 +3,9 @@ echo nameserver 10.70.3.2 > /etc/resolv.conf
 apt-get update
 apt-get install lynx nginx apache2-utils php7.3 php-fpm -y
 
+mkdir -p /etc/nginx/supersecret # Soal 10
+htpasswd -cb /etc/nginx/supersecret/htpasswd secmart kcksit13 # Soal 10
+
 service php7.3-fpm start
 
 echo '
@@ -36,6 +39,8 @@ server {
         }
 
         location / {
+                auth_basic "Restricted Content";
+                auth_basic_user_file /etc/nginx/supersecret/htpasswd;
                 proxy_pass http://worker;
         
         # Soal 11
@@ -54,9 +59,9 @@ ln -s /etc/nginx/sites-available/lb-stilgar /etc/nginx/sites-enabled
 rm /etc/nginx/sites-enabled/default
 
 echo 'upstream worker {
-        10.70.2.2:8001; # Leto
-        10.70.2.3:8002; # Duncan
-        10.70.2.4:8003; # Jessica
+        server 10.70.2.2:8001; # Leto
+        server 10.70.2.3:8002; # Duncan
+        server 10.70.2.4:8003; # Jessica
 }
 
 server {

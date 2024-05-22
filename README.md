@@ -276,15 +276,13 @@ subnet 10.70.1.0 netmask 255.255.255.0 {
     option routers 10.70.1.0;
     option domain-name-servers 10.70.3.2;
 }
-
-subnet 10.70.3.0 netmask 255.255.255.0 {
-
-}
 ```
 Script snippet tersebut akan disematkan pada file script node Mohiam. Tidak lupa juga ditambahkan untuk switchnya (Atreides).
 
 #### Results
-**[INSERT RESULTS]**
+
+![IP Client Harkonen](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/ip_harkonen.png)
+
 
 ### **(Soal 3)** `[3]`
 > Client yang melalui **House Atreides** mendapatkan range IP dari [prefix IP].2.15 - [prefix IP].2.25 dan [prefix IP].2 .200 - [prefix IP].2.210
@@ -297,15 +295,12 @@ subnet 10.70.2.0 netmask 255.255.255.0 {
     option routers 10.70.2.0;
     option domain-name-servers 10.70.3.2;
 }
-
-subnet 10.70.4.0 netmask 255.255.255.0 {
-
-}
 ```
 Sama seperti nomor sebelumnya, script snippet tersebut akan disematkan pada file script node Mohiam. Tidak lupa juga ditambahkan untuk switchnya (Harkonen).
 
 #### Results
-**[INSERT RESULTS]**
+
+![IP Client Atreides](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/ip_atreides.png)
 
 ### **(Soal 4)** `[4]`
 > Client mendapatkan DNS dari Princess Irulan dan dapat terhubung dengan internet melalui DNS tersebut
@@ -328,7 +323,7 @@ EOF
 
 service bind9 restart
 ```
-Forwarder tersebut ditambahkan agar setiap request yang masuk dapat ditujukan ke Irulan yang berlaku sebagai DNS Server dan terhubung ke internet. Tidak lupa untuk melakukan restart pada bind9 agar perubahan yang kita buat dapat dijalankan dengan benar.\
+Forwarder tersebut ditambahkan agar setiap request yang masuk dapat ditujukan ke Irulan yang berlaku sebagai DNS Server dan terhubung ke internet. Tidak lupa untuk melakukan restart pada bind9 agar perubahan yang kita buat dapat dijalankan dengan benar.
 
 #### Results
 ![Soal 4](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/ping_web.png)
@@ -363,9 +358,11 @@ subnet 10.70.2.0 netmask 255.255.255.0 {
 
 #### Results
 - Lease Time Dmitri
+
 ![LT Dmitri](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/lease_time_dmitri.png)
 
 - Lease Time Paul
+
 ![LT Paul](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/lease_time_paul.png)
 
 ## *Bagian 2*
@@ -420,7 +417,8 @@ service nginx restart
 ```
 
 #### Results
-**[INSERT RESULTS]**
+![lynx vladimir](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/no_6_vladimir.png)
+
 
 ### **(Soal 2)** `[7]`
 > Aturlah agar Stilgar dari fremen dapat dapat bekerja sama dengan maksimal, lalu lakukan testing dengan 5000 request dan 150 request/second.
@@ -518,8 +516,7 @@ upstream worker {
         # least_conn;
         # ip_hash;
         # hash $request_uri consistent;
-        # random two least_conn;
-        # server 10.70.1.2; # IP Vladimir
+        server 10.70.1.2; # IP Vladimir
         server 10.70.1.3; # IP Rabban
         server 10.70.1.4; # IP Feyd
 }
@@ -536,6 +533,13 @@ Untuk penjelasan beserta hasil dari testing ini terdapat pada laporan [`IT13_Spi
 
 ### **(Soal 5)** `[10]`
 > Selanjutnya coba tambahkan keamanan dengan konfigurasi autentikasi di LB dengan dengan kombinasi username: “secmart” dan password: “kcksyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/supersecret/
+
+- #### Jalankan command berikut terlebih dahulu pada stilgar
+```bash
+mkdir -p /etc/nginx/supersecret
+
+htpasswd -cb /etc/nginx/supersecret/htpasswd secmart kcksit13
+```
 
 - #### Dalam konfigurasi script stilgar, kita tambahkan `server` berikut untuk menjalankan konfigurasi autentikasi tersebut
 ```bash
@@ -594,11 +598,7 @@ service php7.3-fpm restart
             allow 10.70.2.207;
             deny all;
             proxy_pass http://worker;
-
-   auth_basic "Restricted Content";	
-   auth_basic_user_file /etc/nginx/supersecret/htpasswd;
-    proxy_pass http://worker;
-        }
+    }
 ```
 
 Lakukan restart pada service yang akan digunakan
@@ -611,10 +611,79 @@ service php7.3-fpm restart
 ### **(Soal 1)** `[13]`
 > Semua data yang diperlukan, diatur pada Chani dan harus dapat diakses oleh Leto, Duncan, dan Jessica
 
+- #### Buka Database Server Chani dan masukan command berikut kedalam file setup
+```bash
+echo 'nameserver 10.70.3.2' > /etc/resolv.conf
+apt-get update
+apt-get install mariadb-server -y
+service mysql start
+```
+
+- #### Kemudian edit `/etc/mysql/mariadb.conf.d/50-server.cnf` menjadi seperti berikut
+```
+[server]
+[mysqld]
+
+user                    = mysql
+pid-file                = /run/mysqld/mysqld.pid
+socket                  = /run/mysqld/mysqld.sock
+#port                   = 3306
+basedir                 = /usr
+datadir                 = /var/lib/mysql
+tmpdir                  = /tmp
+lc-messages-dir         = /usr/share/mysql
+#skip-external-locking
+
+bind-address            = 0.0.0.0
+
+query_cache_size        = 16M
+
+log_error = /var/log/mysql/error.log
+
+expire_logs_days        = 10
+
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_general_ci
+
+[embedded]
+
+[mariadb]
+
+[mariadb-10.3]
+```
+- #### Kemudian edit `/etc/mysql/my.cnf` menjadi seperti berikut
+```
+[mysqld]
+skip-networking=0
+skip-bind-address
+```
+
+- #### Kemudian jalankan `mysql -u root -p` dan jalankan perintah-perintah berikut
+```sql
+CREATE USER 'kelompokit13'@'%' IDENTIFIED BY 'passwordit13';
+CREATE USER 'kelompokit13'@'localhost' IDENTIFIED BY 'passwordit13';
+CREATE DATABASE dbkelompokit13;
+GRANT ALL PRIVILEGES ON *.* TO 'kelompokit13'@'%';
+GRANT ALL PRIVILEGES ON *.* TO 'kelompokit13'@'localhost';
+FLUSH PRIVILEGES;
+quit
+```
+- #### Result
+jalankan perintah berikut pada Leto/Duncan/Jessica
+```bash
+mariadb --host=10.70.4.2 --port=3306 --user=kelompokit13 --password=passwordit13 dbkelompokit13 -e "SHOW DATABASES;"
+```
+![database](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/img/no_13.png)
 
 
 ### **(Soal 2)** `[14]`
 > Leto, Duncan, dan Jessica memiliki atreides Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer
+
+- #### Pertama, jalankan script setup untuk laravel worker [`Laravel Worker.sh`](https://github.com/ishal24/Jarkom-Modul-3-IT13-2024/blob/main/setup%20script/Laravel%20Worker.sh)
+
+- #### Result
+
+
 
 ### **(Soal 3)** `[15, 16, 17]`
 > Atreides Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada peta.
